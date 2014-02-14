@@ -82,10 +82,10 @@
       }
 
       var loadSaveStack = function() {
-        var url = window.location.href;    
+        var url = window.location.href;
         if (url.indexOf('?') > -1) {
-          saveInfo = url.substring(url.indexOf('=') + 1);
-          strokeStack = JSON.parse(saveInfo);
+          saveInfo = decodeURIComponent(url.substring(url.indexOf('=') + 1));
+          strokeStack = JSON.parse(decompressJSON(saveInfo));
         }
       }
 
@@ -128,6 +128,11 @@
         curStroke = [];
       }
 
+      var reset = function() {
+        var url = window.location.href;
+        url = url.substring(0,url.indexOf('?'));
+        window.location.href = url;
+      }
       var undo = function() {
         var undoStroke = strokeStack.pop();
         for(var j=0;j<undoStroke.length;j++) {
@@ -154,6 +159,23 @@
         return url;
       }
 
+      var decompressJSON = function(params) {
+        var s = "[[";
+        var cols = params.split("c");
+        
+        for(var c=0;c<cols.length;c++) {
+          var curCol = parseInt(cols[c].substring(0,cols[c].indexOf(",")));
+          var col = (cols[c].substring(cols[c].indexOf(","))).split(",");
+          for(var r=0;r<col.length;r++) {
+            if(col[r] == "") continue;
+            s += "[" + curCol + "," + col[r] + "],";
+          }
+        }
+        s = s.substring(0,s.length-1);
+        s += "]]";
+        return s;
+      }
+
       var compressJSON = function() {
         // inefficient
         var newStack = [];
@@ -166,14 +188,27 @@
             var x = cur[j][0]; var y = cur[j][1];
             if(grid[x][y] === false) {
               grid[x][y] = true;
-              curStroke.push(cur[j]);
+              //curStroke.push(cur[j]);
             }
           }
         }
-        newStack.push(curStroke);
+        //quick and dirty shortening attempt
+        var s = "";
+        for(var x=0;x<grid.length;x++) {
+          var tmp = "";
+          for(var y=0;y<grid[0].length;y++) {
+            if(grid[x][y]) {
+              tmp += y + ",";
+            }
+          }
+          if(tmp != "") {
+            s += "c" + x + "," + tmp;
+          }
+        }              
 
-        // we're going to pretend all strokes are one operation, to try to minimize
-        return JSON.stringify(newStack);
+        //newStack.push(curStroke);
+        //return JSON.stringify(newStack);
+        return s;
       }
 
       function buildEmpty2dArray() {
@@ -189,6 +224,7 @@
       }
 
       var shareFacebook = function() {
+        var url = getURL();
         window.open('https://www.facebook.com/sharer/sharer.php?u=' + url,'sharer','toolbar=0,status=0,width=548,height=325');
       }
 
@@ -244,6 +280,7 @@
 		</script>
     <div id="toolbar">
       <!--button id="save" onclick="save()">save</button-->
+      <button id="reset" onclick="reset()">reset</button>
       <button id="undo" onclick="undo()">undo<span class="aside">(buggy)</span></button>
       <hr />
       <button id="save-image" onclick="saveAsImage()">save as image</button>
