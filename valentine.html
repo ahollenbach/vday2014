@@ -7,6 +7,9 @@
       html, body { margin: 0; padding: 0; border: 0; }
       #c { display: block; } /* kill scrollbars from hell */
       canvas { cursor: default;}
+      #toolbar { position: absolute; top: 0; left: 0; width: 100px; height: 100%; background-color: rgba(20,20,20,.2); text-align: center; }
+      #toolbar button { margin: 40px auto; display: block }
+      img #preview { display:none; }
     </style>
     <script type="text/javascript" src="dat.gui.js"></script>
 	</head>
@@ -33,9 +36,12 @@
       var c = a.getContext('2d');
       var bg;
       var mouseClicked = false;
+
+      // History tracking
+      var strokeStack = [];
+      var curStroke = [];
 		</script>
 		<script>
-// start of submission //
       var Background = function() {
         this.color      = [255,71,125];
         this.threshold  = 3;
@@ -72,14 +78,22 @@
         c.fillStyle = Heart.color;
         var pixX = Math.floor(e.x/bg.pixelSize);
         var pixY = Math.floor(e.y/bg.pixelSize);
+        curStroke.push([pixX,pixY]);
         c.fillRect(pixX*bg.pixelSize,pixY*bg.pixelSize,bg.pixelSize,bg.pixelSize);
+      }
+      var saveStroke = function(e) {
+        mouseClicked = false;
+        if(curStroke.length > 0) {
+          strokeStack.push(curStroke);
+        }
+        curStroke = [];
+        console.log(strokeStack);
       }
 
       window.onload = function() {
         bg = new Background();
         var gui = new dat.GUI();
         gui.close();
-        //var color = gui.addFolder('Color');
 
         var cc = gui.addColor(bg,'color').listen();
         var tc = gui.add(bg,'threshold',0,255).step(1).listen();
@@ -91,20 +105,16 @@
         pc.onChange(function() { drawBackground(bg) });
         bc.onChange(function() { drawBackground(bg) });
 
-
-        // var update = function() {
-        //   requestAnimationFrame(update);
-        //   drawBackground(bg);
-        // };
-        // update();
-
         drawBackground(bg);
         a.onmousedown = function() { mouseClicked = true; }
-        a.onmouseup   = function() { mouseClicked = false; }
+        a.onmouseup   = saveStroke;
         a.onmousemove = listenHeart;
       };      
-      
-// end of submission //
 		</script>
+    <div id="toolbar">
+      <button id="save">save</button>
+      <button id="undo">undo</button>
+      <button id="share">share</button>
+    </div>
 	</body>
 </html>
