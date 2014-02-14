@@ -63,17 +63,10 @@
         }
       }
 
-      var drawBackground = function(bg) {
-        function g(baseColor) {
-          return Math.max(0,Math.min(255,Math.round(baseColor) + gi(-bg.threshold,bg.threshold)));
-        }
-        function gi(min, max) {
-          return Math.floor(Math.random() * (max - min + 1) + min);
-        }
-        
+      var drawBackground = function(bg) {      
         for(var i=0;i<a.width/bg.pixelSize;i++) {
           for(var j=0;j<a.height/bg.pixelSize;j++) {
-            var color = "rgb(" + g(bg.color[0]) + "," + g(bg.color[1]) + "," + g(bg.color[2]) + ")";
+            var color = getRandomColor();
             c.shadowBlur = bg.blur; c.shadowColor = color;
             c.fillStyle = color;
             c.fillRect(i*bg.pixelSize,j*bg.pixelSize,bg.pixelSize,bg.pixelSize);
@@ -90,10 +83,15 @@
         curStroke.push([pixX,pixY]);
         fillPixel(pixX,pixY);
       }
-      var fillPixel = function(x,y) {
-        c.shadowBlur = bg.blur; c.shadowColor = Heart.color;
-        c.fillStyle = Heart.color;
+      var fillPixel = function(x,y,color) {
+        var pixColor = color || Heart.color;
+        c.shadowBlur = bg.blur; c.shadowColor = pixColor;
+        c.fillStyle = pixColor;
         c.fillRect(x*bg.pixelSize,y*bg.pixelSize,bg.pixelSize,bg.pixelSize);
+      }
+
+      var getRandomColor = function() {
+        return "rgb(" + g(bg.color[0]) + "," + g(bg.color[1]) + "," + g(bg.color[2]) + ")";;
       }
 
       var saveStroke = function(e) {
@@ -102,7 +100,20 @@
           strokeStack.push(curStroke);
         }
         curStroke = [];
-        console.log(strokeStack);
+      }
+
+      var undo = function() {
+        var undoStroke = strokeStack.pop();
+        for(var j=0;j<undoStroke.length;j++) {
+          fillPixel(undoStroke[j][0],undoStroke[j][1],getRandomColor());
+        }
+      }
+
+      function g(baseColor) {
+        return Math.max(0,Math.min(255,Math.round(baseColor) + gi(-bg.threshold,bg.threshold)));
+      }
+      function gi(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
       }
 
       window.onload = function() {
@@ -128,8 +139,8 @@
 		</script>
     <div id="toolbar">
       <button id="save">save</button>
-      <button id="undo">undo</button>
-      <button id="share">share</button>
+      <button id="undo" onclick="undo()">undo</button>
+      <button id="share" >share</button>
     </div>
 	</body>
 </html>
