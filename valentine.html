@@ -8,7 +8,8 @@
       #c { display: block; } /* kill scrollbars from hell */
       canvas { cursor: default;}
       #toolbar { position: absolute; top: 0; left: 0; width: 100px; height: 100%; background-color: rgba(20,20,20,.2); text-align: center; }
-      #toolbar button { margin: 40px auto; display: block }
+      #toolbar button { margin: 40px auto; display: block;  }
+      button .aside { font-size: .6em; color: #555; margin: 0 0 0 2px; }
       img #preview { display:none; }
     </style>
     <script type="text/javascript" src="dat.gui.js"></script>
@@ -63,6 +64,14 @@
         }
       }
 
+      var loadSaveStack = function() {
+        var url = window.location.href;    
+        if (url.indexOf('?') > -1) {
+          saveInfo = url.substring(url.indexOf('=') + 1);
+          strokeStack = JSON.parse(saveInfo);
+        }
+      }
+
       var drawBackground = function(bg) {      
         for(var i=0;i<a.width/bg.pixelSize;i++) {
           for(var j=0;j<a.height/bg.pixelSize;j++) {
@@ -109,6 +118,21 @@
         }
       }
 
+      var save = function() {
+        var url = window.location.href;    
+        if (url.indexOf('?') > -1) {
+          url = url.split(url.indexOf('?'))[0];
+          url += '&';
+        }
+        else {
+          url += '?';
+        }
+
+        url += 'draw=' + JSON.stringify(strokeStack);
+        window.location.href = url;
+        window.prompt("Ctrl+C to copy to clipboard", url);
+      }
+
       function g(baseColor) {
         return Math.max(0,Math.min(255,Math.round(baseColor) + gi(-bg.threshold,bg.threshold)));
       }
@@ -131,6 +155,7 @@
         pc.onChange(function() { drawBackground(bg) });
         bc.onChange(function() { drawBackground(bg) });
 
+        loadSaveStack();
         drawBackground(bg);
         a.onmousedown = function() { mouseClicked = true; }
         a.onmouseup   = saveStroke;
@@ -138,8 +163,8 @@
       };      
 		</script>
     <div id="toolbar">
-      <button id="save">save</button>
-      <button id="undo" onclick="undo()">undo</button>
+      <button id="save" onclick="save()">save</button>
+      <button id="undo" onclick="undo()">undo<span class="aside">(buggy)</span></button>
       <button id="share" >share</button>
     </div>
 	</body>
