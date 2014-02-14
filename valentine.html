@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Happy Valentine's Day!</title>
+		<meta charset="utf-8" />
+    <style>
+      html, body { margin: 0; padding: 0; border: 0; }
+      #c { display: block; } /* kill scrollbars from hell */
+      canvas { cursor: default;}
+    </style>
+    <script type="text/javascript" src="dat.gui.js"></script>
+	</head>
+	<body>
+		<canvas id="c"></canvas>
+		<script>
+			var a = document.getElementsByTagName('canvas')[0];
+			var b = document.body;
+      var d = function(e){ return function(){ e.parentNode.removeChild(e); }; }(a);
+      // unprefix some popular vendor prefixed things (but stick to their original name)
+      var AudioContext =
+        window.AudioContext ||
+        window.webkitAudioContext;
+      var requestAnimationFrame =
+        window.requestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+         window.webkitRequestAnimationFrame ||
+       window.msRequestAnimationFrame ||
+        function(f){ setInterval(f, 1000/30); };
+      // stretch canvas to screen size (once, wont onresize!)
+      a.style.width = (a.width = innerWidth) + 'px';
+      a.style.height = (a.height = innerHeight) + 'px';
+
+      var c = a.getContext('2d');
+      var bg;
+      var mouseClicked = false;
+		</script>
+		<script>
+// start of submission //
+      var Background = function() {
+        this.color      = [255,71,125];
+        this.threshold  = 3;
+        this.pixelSize  = 20;
+        this.blur       = 5;
+      };
+
+      var Heart = {
+        color: "#40121F"
+      }
+
+      var drawBackground = function(bg) {
+        function g(baseColor) {
+          return Math.max(0,Math.min(255,Math.round(baseColor) + gi(-bg.threshold,bg.threshold)));
+        }
+        function gi(min, max) {
+          return Math.floor(Math.random() * (max - min + 1) + min);
+        }
+        
+        for(var i=0;i<a.width/bg.pixelSize;i++) {
+          for(var j=0;j<a.height/bg.pixelSize;j++) {
+            var color = "rgb(" + g(bg.color[0]) + "," + g(bg.color[1]) + "," + g(bg.color[2]) + ")";
+            c.shadowBlur = bg.blur; c.shadowColor = color;
+            c.fillStyle = color;
+            c.fillRect(i*bg.pixelSize,j*bg.pixelSize,bg.pixelSize,bg.pixelSize);
+          }
+        }
+      }
+
+      var listenHeart = function(e) {
+        if(!mouseClicked) return;
+
+        c.shadowBlur = bg.blur; c.shadowColor = Heart.color;
+        c.fillStyle = Heart.color;
+        var pixX = Math.floor(e.x/bg.pixelSize);
+        var pixY = Math.floor(e.y/bg.pixelSize);
+        c.fillRect(pixX*bg.pixelSize,pixY*bg.pixelSize,bg.pixelSize,bg.pixelSize);
+      }
+
+      window.onload = function() {
+        bg = new Background();
+        var gui = new dat.GUI();
+        gui.close();
+        //var color = gui.addFolder('Color');
+
+        var cc = gui.addColor(bg,'color').listen();
+        var tc = gui.add(bg,'threshold',0,255).step(1).listen();
+        var pc = gui.add(bg,'pixelSize',7,600).step(1).listen();
+        var bc = gui.add(bg,'blur',0,600).step(1).listen();
+
+        cc.onChange(function() { drawBackground(bg) });
+        tc.onChange(function() { drawBackground(bg) });
+        pc.onChange(function() { drawBackground(bg) });
+        bc.onChange(function() { drawBackground(bg) });
+
+
+        // var update = function() {
+        //   requestAnimationFrame(update);
+        //   drawBackground(bg);
+        // };
+        // update();
+
+        drawBackground(bg);
+        a.onmousedown = function() { mouseClicked = true; }
+        a.onmouseup   = function() { mouseClicked = false; }
+        a.onmousemove = listenHeart;
+      };      
+      
+// end of submission //
+		</script>
+	</body>
+</html>
