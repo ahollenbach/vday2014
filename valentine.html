@@ -144,8 +144,42 @@
           url += '?';
         }
 
-        url += 'd=' + JSON.stringify(strokeStack);
+        //url += 'd=' + JSON.stringify(strokeStack);
+        url += 'd=' + compressJSON();
         return url;
+      }
+
+      var compressJSON = function() {
+        // inefficient
+        var newStack = [];
+        var curStroke = [];
+
+        var grid = buildEmpty2dArray();
+        for(var i=0;i<strokeStack.length;i++) {
+          var cur = strokeStack[i];
+          for(var j=0;j<cur.length;j++) {
+            var x = cur[j][0]; var y = cur[j][1];
+            if(grid[x][y] === false) {
+              console.log(grid[x]);
+              grid[x][y] = true;
+              curStroke.push(cur[j]);
+            }
+          }
+        }
+        newStack.push(curStroke);
+
+        // we're going to pretend all strokes are one op, to try to minimize
+        return JSON.stringify(newStack);
+      }
+
+      function buildEmpty2dArray() {
+      console.log('done');
+
+        for(var arr=[];arr.length < a.width/bg.pixelSize;) {
+          for(var ar2=[];ar2.length < a.height/bg.pixelSize;ar2.push(false));
+          arr.push(ar2);
+        }
+        return arr;
       }
 
       var saveAsImage = function() {
