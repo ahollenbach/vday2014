@@ -53,6 +53,16 @@
         color: "#40121F"
       }
 
+      // renders the drawing, if any
+      var renderDrawing = function() {
+        for(var i=0;i<strokeStack.length;i++) {
+          var cur = strokeStack[i];
+          for(var j=0;j<cur.length;j++) {
+            fillPixel(cur[j][0],cur[j][1]);
+          }
+        }
+      }
+
       var drawBackground = function(bg) {
         function g(baseColor) {
           return Math.max(0,Math.min(255,Math.round(baseColor) + gi(-bg.threshold,bg.threshold)));
@@ -69,18 +79,23 @@
             c.fillRect(i*bg.pixelSize,j*bg.pixelSize,bg.pixelSize,bg.pixelSize);
           }
         }
+
+        renderDrawing();
       }
 
       var listenHeart = function(e) {
         if(!mouseClicked) return;
-
-        c.shadowBlur = bg.blur; c.shadowColor = Heart.color;
-        c.fillStyle = Heart.color;
         var pixX = Math.floor(e.x/bg.pixelSize);
         var pixY = Math.floor(e.y/bg.pixelSize);
         curStroke.push([pixX,pixY]);
-        c.fillRect(pixX*bg.pixelSize,pixY*bg.pixelSize,bg.pixelSize,bg.pixelSize);
+        fillPixel(pixX,pixY);
       }
+      var fillPixel = function(x,y) {
+        c.shadowBlur = bg.blur; c.shadowColor = Heart.color;
+        c.fillStyle = Heart.color;
+        c.fillRect(x*bg.pixelSize,y*bg.pixelSize,bg.pixelSize,bg.pixelSize);
+      }
+
       var saveStroke = function(e) {
         mouseClicked = false;
         if(curStroke.length > 0) {
