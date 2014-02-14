@@ -6,6 +6,13 @@
     <meta name="description" content="A special note for that special someone..." />
     <meta property="og:image" content="http://www.andrewhollenbach.com/projects/vday2014/heart.png"/>
 
+    <link rel="shortcut icon" href="http://andrewhollenbach.com/projects/vday2014/favicon.ico">
+    <link rel="icon" type="image/png" href="http://andrewhollenbach.com/projects/vday2014/favicon-196x196.png" sizes="196x196">
+    <link rel="icon" type="image/png" href="http://andrewhollenbach.com/projects/vday2014/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="http://andrewhollenbach.com/projects/vday2014/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="http://andrewhollenbach.com/projects/vday2014/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="http://andrewhollenbach.com/projects/vday2014/favicon-32x32.png" sizes="32x32">
+
     <style>
       html, body { margin: 0; padding: 0; border: 0; }
       #c { display: block; } /* kill scrollbars from hell */
@@ -166,9 +173,12 @@
         var gui = new dat.GUI();
         gui.close();
 
+        // Don't let too small of pixels (lags out)
+        var minPixelSize = (15 < Math.round(a.width/120)) ? Math.round(a.width/120) : 15;
+
         var cc = gui.addColor(bg,'color').listen();
         var tc = gui.add(bg,'threshold',0,255).step(1).listen();
-        var pc = gui.add(bg,'pixelSize',10,150).step(1).listen();
+        var pc = gui.add(bg,'pixelSize',minPixelSize,150).step(1).listen();
         var bc = gui.add(bg,'blur',0,150).step(1).listen();
 
         cc.onChange(function() { drawBackground(bg) });
@@ -179,6 +189,7 @@
         loadSaveStack();
         drawBackground(bg);
         a.onmousedown = function() { mouseClicked = true; }
+        //a.onmouseclick = 
         a.onmouseup   = saveStroke;
         a.onmousemove = listenHeart;
       };      
