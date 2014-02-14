@@ -3,6 +3,9 @@
 	<head>
 		<title>Happy Valentine's Day!</title>
 		<meta charset="utf-8" />
+    <meta name="description" content="A special note for that special someone..." />
+    <meta property="og:image" content="http://www.andrewhollenbach.com/projects/vday2014/heart.png"/>
+
     <style>
       html, body { margin: 0; padding: 0; border: 0; }
       #c { display: block; } /* kill scrollbars from hell */
@@ -10,6 +13,7 @@
       #toolbar { position: absolute; top: 0; left: 0; width: 100px; height: 100%; background-color: rgba(20,20,20,.2); text-align: center; }
       #toolbar button { margin: 40px auto; display: block; background-color: #7F233E; width:90px; height: 40px; color: #EEE; border:none;}
       #toolbar button:hover { background-color: #63172D; cursor: pointer;}
+      #toolbar p { margin: 40px auto; display: block; width:90px; height: 40px; color: #EEE; font-family: sans-serif; }
       button .aside { font-size: .6em; color: #CCC; margin: 0 0 0 2px; }
       img #preview { display:none; }
     </style>
@@ -122,7 +126,6 @@
       var save = function() {
         var url = getURL();
         window.location.href = url;
-        window.prompt("Ctrl+C to copy to clipboard", url);
       }
       var getURL = function() {
         var url = window.location.href;
@@ -138,15 +141,18 @@
         return url;
       }
 
-      var share = function() {
+      var saveAsImage = function() {
+        window.open(a.toDataURL("image/png"));
+      }
 
-        var title = encodeURIComponent("Valentine's Day Note");
-        var summary = encodeURIComponent("A special note for that special someone...");
-        var url = encodeURIComponent(getURL());
-        var image = encodeURIComponent(a.toDataURL());
+      var shareFacebook = function() {
+        window.open('https://www.facebook.com/sharer/sharer.php?u=' + url,'sharer','toolbar=0,status=0,width=548,height=325');
+      }
 
-        window.open('http://www.facebook.com/sharer.php?s=100&amp;p[title]=' + title + '&amp;p[summary]=' + summary + '&amp;p[url]=' + url + '&amp;p[images][0]=' + image,'sharer','toolbar=0,status=0,width=548,height=325');
-    }
+      var shareLink = function() {
+        var url = getURL();
+        window.prompt("Ctrl+C to copy to clipboard", url);
+      }
 
       function g(baseColor) {
         return Math.max(0,Math.min(255,Math.round(baseColor) + gi(-bg.threshold,bg.threshold)));
@@ -162,8 +168,8 @@
 
         var cc = gui.addColor(bg,'color').listen();
         var tc = gui.add(bg,'threshold',0,255).step(1).listen();
-        var pc = gui.add(bg,'pixelSize',7,600).step(1).listen();
-        var bc = gui.add(bg,'blur',0,600).step(1).listen();
+        var pc = gui.add(bg,'pixelSize',10,150).step(1).listen();
+        var bc = gui.add(bg,'blur',0,150).step(1).listen();
 
         cc.onChange(function() { drawBackground(bg) });
         tc.onChange(function() { drawBackground(bg) });
@@ -180,7 +186,10 @@
     <div id="toolbar">
       <button id="save" onclick="save()">save</button>
       <button id="undo" onclick="undo()">undo<span class="aside">(buggy)</span></button>
-      <button id="share" onclick="share()">share</button>
+      <button id="save-image" onclick="saveAsImage()">save as image</button>
+      <button id="share" onclick="shareLink()">share link</button>
+      <button id="share-facebook" onclick="shareFacebook()">share facebook</button>
+      <p>Click to draw!</p>
     </div>
 	</body>
 </html>
