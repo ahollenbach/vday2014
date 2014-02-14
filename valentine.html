@@ -18,11 +18,16 @@
       #c { display: block; } /* kill scrollbars from hell */
       canvas { cursor: default;}
       #toolbar { position: absolute; top: 0; left: 0; width: 100px; height: 100%; background-color: rgba(20,20,20,.2); text-align: center; }
-      #toolbar button { margin: 40px auto; display: block; background-color: #7F233E; width:90px; height: 40px; color: #EEE; border:none;}
-      #toolbar button:hover { background-color: #63172D; cursor: pointer;}
+      button { margin: 40px auto; display: block; background-color: #7F233E; width:90px; height: 40px; color: #EEE; border:none;}
+      button:hover { background-color: #63172D; cursor: pointer;}
       #toolbar p { margin: 40px auto; display: block; width:90px; height: 40px; color: #EEE; font-family: sans-serif; }
       button .aside { font-size: .6em; color: #CCC; margin: 0 0 0 2px; }
       img #preview { display:none; }
+      hr { border:1px solid rgba(30,30,30,.4);}
+      #dropdown-modal {position: absolute; top:110px;left:110px; display: none; text-align: center; background-color: rgba(20,20,20,.6); padding:10px;}
+      #dropdown-modal h2 { color: #FAFAFA; font-family: sans-serif;}
+      #dropdown-modal.visible { display: block };
+      #dropdown-modal textarea { resize: none; }
     </style>
     <script type="text/javascript" src="dat.gui.js"></script>
 	</head>
@@ -160,7 +165,6 @@
           for(var j=0;j<cur.length;j++) {
             var x = cur[j][0]; var y = cur[j][1];
             if(grid[x][y] === false) {
-              console.log(grid[x]);
               grid[x][y] = true;
               curStroke.push(cur[j]);
             }
@@ -168,13 +172,11 @@
         }
         newStack.push(curStroke);
 
-        // we're going to pretend all strokes are one op, to try to minimize
+        // we're going to pretend all strokes are one operation, to try to minimize
         return JSON.stringify(newStack);
       }
 
       function buildEmpty2dArray() {
-      console.log('done');
-
         for(var arr=[];arr.length < a.width/bg.pixelSize;) {
           for(var ar2=[];ar2.length < a.height/bg.pixelSize;ar2.push(false));
           arr.push(ar2);
@@ -192,7 +194,19 @@
 
       var shareLink = function() {
         var url = getURL();
-        window.prompt("Ctrl+C to copy to clipboard", url);
+
+        var textarea = document.getElementById("link-value");
+        textarea.value = url;
+        textarea.focus();
+        textarea.select();
+
+        var dropdown = document.getElementById("dropdown-modal");
+        dropdown.className = "visible";
+      }
+
+      var closeModal = function() {
+        var dropdown = document.getElementById("dropdown-modal");
+        dropdown.className = "";
       }
 
       function g(baseColor) {
@@ -229,12 +243,18 @@
       };      
 		</script>
     <div id="toolbar">
-      <button id="save" onclick="save()">save</button>
+      <!--button id="save" onclick="save()">save</button-->
       <button id="undo" onclick="undo()">undo<span class="aside">(buggy)</span></button>
+      <hr />
       <button id="save-image" onclick="saveAsImage()">save as image</button>
       <button id="share" onclick="shareLink()">share link</button>
       <button id="share-facebook" onclick="shareFacebook()">share facebook</button>
       <p>Click to draw!</p>
+    </div>
+    <div id="dropdown-modal">
+      <h2>Copy this super-long link!</h2>
+      <textarea id="link-value" rows="1" cols="50" readonly></textarea>
+      <button onclick="closeModal()">Done</button>
     </div>
 	</body>
 </html>
