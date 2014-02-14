@@ -8,8 +8,9 @@
       #c { display: block; } /* kill scrollbars from hell */
       canvas { cursor: default;}
       #toolbar { position: absolute; top: 0; left: 0; width: 100px; height: 100%; background-color: rgba(20,20,20,.2); text-align: center; }
-      #toolbar button { margin: 40px auto; display: block;  }
-      button .aside { font-size: .6em; color: #555; margin: 0 0 0 2px; }
+      #toolbar button { margin: 40px auto; display: block; background-color: #7F233E; width:90px; height: 40px; color: #EEE; border:none;}
+      #toolbar button:hover { background-color: #63172D; cursor: pointer;}
+      button .aside { font-size: .6em; color: #CCC; margin: 0 0 0 2px; }
       img #preview { display:none; }
     </style>
     <script type="text/javascript" src="dat.gui.js"></script>
@@ -119,7 +120,12 @@
       }
 
       var save = function() {
-        var url = window.location.href;    
+        var url = getURL();
+        window.location.href = url;
+        window.prompt("Ctrl+C to copy to clipboard", url);
+      }
+      var getURL = function() {
+        var url = window.location.href;
         if (url.indexOf('?') > -1) {
           url = url.substring(0,url.indexOf('?'));
           url += '?';
@@ -128,10 +134,19 @@
           url += '?';
         }
 
-        url += 'draw=' + JSON.stringify(strokeStack);
-        window.location.href = url;
-        window.prompt("Ctrl+C to copy to clipboard", url);
+        url += 'd=' + JSON.stringify(strokeStack);
+        return url;
       }
+
+      var share = function() {
+
+        var title = encodeURIComponent("Valentine's Day Note");
+        var summary = encodeURIComponent("A special note for that special someone...");
+        var url = encodeURIComponent(getURL());
+        var image = encodeURIComponent(a.toDataURL());
+
+        window.open('http://www.facebook.com/sharer.php?s=100&amp;p[title]=' + title + '&amp;p[summary]=' + summary + '&amp;p[url]=' + url + '&amp;p[images][0]=' + image,'sharer','toolbar=0,status=0,width=548,height=325');
+    }
 
       function g(baseColor) {
         return Math.max(0,Math.min(255,Math.round(baseColor) + gi(-bg.threshold,bg.threshold)));
@@ -165,7 +180,7 @@
     <div id="toolbar">
       <button id="save" onclick="save()">save</button>
       <button id="undo" onclick="undo()">undo<span class="aside">(buggy)</span></button>
-      <button id="share" >share</button>
+      <button id="share" onclick="share()">share</button>
     </div>
 	</body>
 </html>
